@@ -1,4 +1,4 @@
-name: Go
+name: Build
 
 on:
   push:
@@ -45,61 +45,3 @@ jobs:
         with:
           name: build-artifacts
           path: build/*
-
-  release:
-    name: Release
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v2
-
-      - name: Download Artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: build-artifacts
-          path: build
-
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1.1.4
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
-
-      - name: Upload Release Assets
-        id: upload-linux-release-asset
-        uses: actions/upload-release-asset@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./build/elden-ring-ersc-updater-linux-amd64
-          asset_name: elden-ring-ersc-updater-linux-amd64
-          asset_content_type: application/octet-stream
-
-      - name: Upload Release Assets
-        id: upload-windows-release-asset
-        uses: actions/upload-release-asset@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./build/elden-ring-ersc-updater-windows-amd64.exe
-          asset_name: elden-ring-ersc-updater-windows-amd64.exe
-          asset_content_type: application/octet-stream
-
-      - name: Upload Release Assets
-        id: upload-macos-release-asset
-        uses: actions/upload-release-asset@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./build/elden-ring-ersc-updater-darwin-amd64
-          asset_name: elden-ring-ersc-updater-darwin-amd64
-          asset_content_type: application/octet-stream

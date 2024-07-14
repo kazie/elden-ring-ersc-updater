@@ -1,0 +1,104 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.22
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+
+      - name: Get dependencies
+        run: go mod download
+
+      - name: Compile for Linux
+        env:
+          GOOS: linux
+          GOARCH: amd64
+        run: go build -v -o build/elden-ring-ersc-updater-linux-amd64
+
+      - name: Compile for Windows
+        env:
+          GOOS: windows
+          GOARCH: amd64
+        run: go build -v -o build/elden-ring-ersc-updater-windows-amd64.exe
+
+      - name: Compile for MacOS
+        env:
+          GOOS: darwin
+          GOARCH: amd64
+        run: go build -v -o build/elden-ring-ersc-updater-darwin-amd64
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: build-artifacts
+          path: build/*
+
+  release:
+    name: Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Download Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: build-artifacts
+          path: build
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1.1.4
+        env:
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Assets
+        id: upload-linux-release-asset
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./build/elden-ring-ersc-updater-linux-amd64
+          asset_name: elden-ring-ersc-updater-linux-amd64
+          asset_content_type: application/octet-stream
+
+      - name: Upload Release Assets
+        id: upload-windows-release-asset
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./build/elden-ring-ersc-updater-windows-amd64.exe
+          asset_name: elden-ring-ersc-updater-windows-amd64.exe
+          asset_content_type: application/octet-stream
+
+      - name: Upload Release Assets
+        id: upload-macos-release-asset
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./build/elden-ring-ersc-updater-darwin-amd64
+          asset_name: elden-ring-ersc-updater-darwin-amd64
+          asset_content_type: application/octet-stream
