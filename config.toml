@@ -1,0 +1,8 @@
+# The last downloaded version v1.7.8 for example
+current_version = "v1.7.8"
+# The full path to your elden ring game folder
+elden_ring_game_path = "/home/username/.local/share/Steam/steamapps/common/ELDEN RING/Game/"
+# Github API key with reading public repositories, make one under developer settings -> personal access token
+github_read_token = ""
+# If it shall ignore writing the ini file (writing ini file may reset password)
+ignore_ini_file = true
