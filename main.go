@@ -38,7 +38,7 @@ type Config struct {
 func readConfig() *Config {
 	var conf Config
 	if _, err := toml.DecodeFile("./config.toml", &conf); err != nil {
-		_, _ = fmt.Fprintf(os.Stderr, "Could not find config file, [./config.toml]\n\n  Please create './config.toml' as such: \n\n%s\n", exampleFile)
+		_, _ = fmt.Fprintf(os.Stderr, "Could not find config file, [./config.toml]\n\n  Please create './config.toml' as such: \n\n%s\n %s", exampleFile, err)
 		os.Exit(1)
 	}
 	return &conf
