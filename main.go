@@ -14,20 +14,6 @@ import (
 	"regexp"
 )
 
-const exampleFile = `-- START OF CONFIG FILE --
-
-# The last downloaded version v1.7.8 for example
-current_version = "v1.7.8"
-# The full path to your elden ring game folder
-elden_ring_game_path = "/home/username/.local/share/Steam/steamapps/common/ELDEN RING/Game/"
-# Github API key with reading public repositories, make one under developer settings -> personal access token
-github_read_token = ""
-# If it shall ignore writing the ini file (writing ini file may reset password)
-ignore_ini_file = true
-
--- END OF CONFIG FILE --
-`
-
 type Config struct {
 	CurrentVersion    string `toml:"current_version"`
 	EldenRingGamePath string `toml:"elden_ring_game_path"`
@@ -38,7 +24,7 @@ type Config struct {
 func readConfig() *Config {
 	var conf Config
 	if _, err := toml.DecodeFile("./config.toml", &conf); err != nil {
-		_, _ = fmt.Fprintf(os.Stderr, "Could not find config file, [./config.toml]\n\n  Please create './config.toml' as such: \n\n%s\n %s", exampleFile, err)
+		_, _ = fmt.Fprintf(os.Stderr, "Could not find or read the config file, [./config.toml\n %s", err)
 		os.Exit(1)
 	}
 	return &conf
