@@ -5,6 +5,8 @@ mod for Elden Ring, by using the latest release from the [github mirror](https:/
 
 One can typically just update it by hand, but I made this simple program just to help my own lazy ass.
 
+![](./update.png)
+
 ### Config
 
 The config is done in a toml file `config.toml`, that shall be in the same folder as the running program.
