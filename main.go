@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/BurntSushi/toml"
-	"github.com/google/go-github/v63/github"
+	"github.com/google/go-github/v67/github"
 	"io"
 	"net/http"
 	"os"
