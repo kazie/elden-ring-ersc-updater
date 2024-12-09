@@ -5,7 +5,7 @@ mod for Elden Ring, by using the latest release from the [github mirror](https:/
 
 One can typically just update it by hand, but I made this simple program just to help my own lazy ass.
 
-![](./update.png)
+![](./elden.gif)
 
 ### Config
 
