@@ -133,16 +133,34 @@ jobs:
           name: build-artifacts
           path: build
 
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1.1.4
+      - name: Get or Create Release
+        id: release
+        run: |
+          # Extract tag name from github.ref (refs/tags/v1.0.0 -> v1.0.0)
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          echo "Tag name: $TAG_NAME"
+
+          # Try to get the existing release
+          RELEASE_URL=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/releases/tags/$TAG_NAME" \
+            | jq -r '.upload_url // empty')
+
+          # If release doesn't exist, create it
+          if [ -z "$RELEASE_URL" ]; then
+            echo "Creating new release for tag $TAG_NAME"
+            RELEASE_URL=$(curl -s -X POST -H "Authorization: token $GITHUB_TOKEN" \
+              -H "Accept: application/vnd.github.v3+json" \
+              "https://api.github.com/repos/$GITHUB_REPOSITORY/releases" \
+              -d "{\"tag_name\":\"$TAG_NAME\",\"name\":\"Release $TAG_NAME\",\"draft\":false,\"prerelease\":false}" \
+              | jq -r '.upload_url')
+          else
+            echo "Using existing release for tag $TAG_NAME"
+          fi
+
+          # Set the upload URL as output
+          echo "upload_url=$RELEASE_URL" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
 
       - name: Upload Release Assets
         id: upload-linux-release-asset
@@ -150,7 +168,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ steps.release.outputs.upload_url }}
           asset_path: ./build/elden-ring-ersc-updater-linux-amd64
           asset_name: elden-ring-ersc-updater-linux-amd64
           asset_content_type: application/octet-stream
@@ -161,7 +179,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ steps.release.outputs.upload_url }}
           asset_path: ./build/elden-ring-ersc-updater-windows-amd64.exe
           asset_name: elden-ring-ersc-updater-windows-amd64.exe
           asset_content_type: application/octet-stream
@@ -172,7 +190,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ steps.release.outputs.upload_url }}
           asset_path: ./build/elden-ring-ersc-updater-darwin-amd64
           asset_name: elden-ring-ersc-updater-darwin-amd64
           asset_content_type: application/octet-stream
