@@ -31,9 +31,13 @@ func readConfig() *Config {
 }
 
 func getLatestVersion(client *github.Client) *github.RepositoryRelease {
-	release, _, err := client.Repositories.GetLatestRelease(context.Background(), "LukeYui", "EldenRingSeamlessCoopRelease")
+	release, resp, err := client.Repositories.GetLatestRelease(context.Background(), "LukeYui", "EldenRingSeamlessCoopRelease")
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Could not fetch latest version, [%s]\n", err)
+		if resp != nil && (resp.StatusCode == 403 || resp.StatusCode == 429) {
+			fmt.Fprintf(os.Stderr, "GitHub API rate limit exceeded. Try again later or provide a GitHub token in config.toml. [%s]\n", err)
+		} else {
+			fmt.Fprintf(os.Stderr, "Could not fetch latest version, [%s]\n", err)
+		}
 		os.Exit(1)
 	}
 	return release
@@ -46,7 +50,9 @@ func getZipFile(zipFileURL string, auth string) []byte {
 		fmt.Fprintf(os.Stderr, "Could not create GET request, [%s]\n", err)
 		os.Exit(1)
 	}
-	req.Header.Set("Authorization", "Bearer "+auth)
+	if auth != "" {
+		req.Header.Set("Authorization", "Bearer "+auth)
+	}
 	req.Header.Set("Accept", "application/zip")
 	req.Header.Set("X-GitHub-Api-Version", "2022-11-28")
 
@@ -56,6 +62,11 @@ func getZipFile(zipFileURL string, auth string) []byte {
 		os.Exit(1)
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode == 403 || resp.StatusCode == 429 {
+		fmt.Fprintf(os.Stderr, "GitHub API rate limit exceeded. Try again later or provide a GitHub token in config.toml. Status code: %d\n", resp.StatusCode)
+		os.Exit(1)
+	}
 
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -131,7 +142,12 @@ func updateVersionInFile(version string, filename string) {
 
 func main() {
 	conf := readConfig()
-	client := github.NewClient(nil).WithAuthToken(conf.GithubReadToken)
+	var client *github.Client
+	if conf.GithubReadToken != "" {
+		client = github.NewClient(nil).WithAuthToken(conf.GithubReadToken)
+	} else {
+		client = github.NewClient(nil)
+	}
 	release := getLatestVersion(client)
 
 	if *release.TagName != conf.CurrentVersion {
