@@ -133,46 +133,13 @@ jobs:
           name: build-artifacts
           path: build
 
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1.1.4
-        env:
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
-
       - name: Upload Release Assets
-        id: upload-linux-release-asset
-        uses: actions/upload-release-asset@v1.0.2
+        uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./build/elden-ring-ersc-updater-linux-amd64
-          asset_name: elden-ring-ersc-updater-linux-amd64
-          asset_content_type: application/octet-stream
-
-      - name: Upload Release Assets
-        id: upload-windows-release-asset
-        uses: actions/upload-release-asset@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./build/elden-ring-ersc-updater-windows-amd64.exe
-          asset_name: elden-ring-ersc-updater-windows-amd64.exe
-          asset_content_type: application/octet-stream
-
-      - name: Upload Release Assets
-        id: upload-macos-release-asset
-        uses: actions/upload-release-asset@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./build/elden-ring-ersc-updater-darwin-amd64
-          asset_name: elden-ring-ersc-updater-darwin-amd64
-          asset_content_type: application/octet-stream
+          files: |
+            ./build/elden-ring-ersc-updater-linux-amd64
+            ./build/elden-ring-ersc-updater-windows-amd64.exe
+            ./build/elden-ring-ersc-updater-darwin-amd64
+          fail_on_unmatched_files: true
