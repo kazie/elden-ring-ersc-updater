@@ -22,6 +22,15 @@ jobs:
       - name: Get dependencies
         run: go mod download
 
+      - name: Run tests with coverage
+        run: go test -race -coverprofile=coverage.txt -covermode=atomic ./...
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: ./coverage.txt
+          fail_ci_if_error: false
+
       - name: Compile for Linux
         env:
           GOOS: linux
