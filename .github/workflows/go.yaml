@@ -124,19 +124,19 @@ jobs:
         run: mkdir -p build
 
       - name: Download Linux Artifact
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: linux-artifact
           path: build
 
       - name: Download Windows Artifact
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: windows-artifact
           path: build
 
       - name: Download MacOS Artifact
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: macos-artifact
           path: build
