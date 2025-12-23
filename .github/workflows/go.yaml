@@ -54,7 +54,7 @@ jobs:
         run: go build -v -o build/elden-ring-ersc-updater-linux-amd64
 
       - name: Upload Linux Artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: linux-artifact
           path: build/elden-ring-ersc-updater-linux-amd64
@@ -82,7 +82,7 @@ jobs:
         run: go build -v -o build/elden-ring-ersc-updater-windows-amd64.exe
 
       - name: Upload Windows Artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: windows-artifact
           path: build/elden-ring-ersc-updater-windows-amd64.exe
@@ -110,7 +110,7 @@ jobs:
         run: go build -v -o build/elden-ring-ersc-updater-darwin-amd64
 
       - name: Upload MacOS Artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: macos-artifact
           path: build/elden-ring-ersc-updater-darwin-amd64
@@ -142,7 +142,7 @@ jobs:
           path: build
 
       - name: Upload All Artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: build-artifacts
           path: build/*
